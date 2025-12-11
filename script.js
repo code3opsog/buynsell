@@ -10,7 +10,7 @@ let shops = JSON.parse(localStorage.getItem('rbxstock_shops')) || [
 
 let currentUser = null;
 
-// Render shops
+// Render shops with stagger animation
 function renderShops() {
   const grid = document.getElementById('shopsGrid');
   grid.innerHTML = shops.map(shop => `
@@ -21,6 +21,13 @@ function renderShops() {
       <button class="btn green" style="padding:10px 20px;margin-top:10px;">Visit Shop</button>
     </div>
   `).join('');
+
+  // Stagger entrance
+  const cards = grid.querySelectorAll('.shop-card');
+  cards.forEach((card, index) => {
+    card.style.animationDelay = `${index * 0.1}s`;
+    setTimeout(() => card.classList.add('animate'), 100);
+  });
 }
 
 // Fake live counters
@@ -29,6 +36,37 @@ setInterval(() => {
 }, 8000);
 
 renderShops();
+
+// Ripple effect
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('ripple')) {
+    const ripple = document.createElement('span');
+    const rect = e.target.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const x = e.clientX - rect.left - size / 2;
+    const y = e.clientY - rect.top - size / 2;
+    ripple.style.cssText = `
+      position: absolute;
+      width: ${size}px; height: ${size}px;
+      left: ${x}px; top: ${y}px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 50%;
+      transform: scale(0);
+      animation: ripple-anim 0.6s linear;
+      pointer-events: none;
+    `;
+    e.target.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 600);
+  }
+});
+
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes ripple-anim {
+    to { transform: scale(4); opacity: 0; }
+  }
+`;
+document.head.appendChild(style);
 
 // ======== AUTH (Google + Discord ready) ========
 // Uncomment and add your Firebase config for real login
@@ -62,6 +100,15 @@ document.querySelectorAll('.login-btn').forEach(btn => {
     document.getElementById('userAvatar').src = currentUser.avatar;
     document.getElementById('dashboard').style.display = 'block';
 
+    // Animate dashboard entrance
+    document.getElementById('dashboard').style.opacity = '0';
+    document.getElementById('dashboard').style.transform = 'translateY(20px)';
+    setTimeout(() => {
+      document.getElementById('dashboard').style.transition = 'all 0.5s ease';
+      document.getElementById('dashboard').style.opacity = '1';
+      document.getElementById('dashboard').style.transform = 'translateY(0)';
+    }, 100);
+
     renderMyListings();
   });
 });
@@ -91,14 +138,14 @@ document.getElementById('addListingBtn').addEventListener('click', () => {
 function renderMyListings() {
   const container = document.getElementById('myListings');
   if (!currentUser || currentUser.myListings.length === 0) {
-    container.innerHTML = '<p>No active listings</p>';
+    container.innerHTML = '<p style="opacity:0.7;">No active listings</p>';
     return;
   }
 
   container.innerHTML = currentUser.myListings.map(l => `
     <div>
       <span>${(l.amount/1000).toFixed(0)}K Robux → $${l.price} ($${l.usdPerK}/K)</span>
-      <button class="remove-btn" onclick="removeListing(${l.id})">Remove</button>
+      <button class="remove-btn ripple" onclick="removeListing(${l.id})">Remove</button>
     </div>
   `).join('');
 }

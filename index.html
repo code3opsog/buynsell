@@ -5,20 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>RBXStock Clone - Buy & Sell Robux</title>
   <link rel="stylesheet" href="style.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
+  <div class="particles"></div> <!-- Subtle background particles -->
+
   <header>
     <div class="container header-content">
       <div class="logo">RBXSTOCK</div>
       <div class="auth-buttons" id="authButtons">
-        <button class="login-btn google">Login with Google</button>
-        <button class="login-btn discord">Login with Discord</button>
+        <button class="login-btn google ripple">Login with Google</button>
+        <button class="login-btn discord ripple">Login with Discord</button>
       </div>
       <div class="user-menu" id="userMenu" style="display:none;">
         <img id="userAvatar" src="" alt="Avatar" />
         <span id="userName"></span>
-        <button id="logoutBtn">Logout</button>
+        <button id="logoutBtn" class="ripple">Logout</button>
       </div>
     </div>
   </header>
@@ -35,8 +37,8 @@
       </div>
 
       <div class="action-buttons">
-        <a href="#" class="btn big green">Sell Robux</a>
-        <a href="#" class="btn big outline">Buy Robux</a>
+        <a href="#" class="btn big green ripple">Sell Robux</a>
+        <a href="#" class="btn big outline ripple">Buy Robux</a>
       </div>
     </div>
   </section>
@@ -46,15 +48,15 @@
     <div id="shopsGrid" class="shops-grid"></div>
   </section>
 
-  <!-- Dashboard (only visible only when logged in ) -->
+  <!-- Dashboard (only visible when logged in) -->
   <section id="dashboard" class="container" style="display:none; margin-top:50px;">
-    <h2 style="color:#00ff00;">My Shop</h2>
+    <h2 style="color:#00ff88;">My Shop</h2>
     <div class="dashboard-grid">
       <div class="add-item-card">
         <h3>Add New Listing</h3>
         <input type="number" id="amount" placeholder="Amount of Robux" />
         <input type="number" step="0.01" id="price" placeholder="Price in USD" />
-        <button id="addListingBtn" class="btn green">Add Listing</button>
+        <button id="addListingBtn" class="btn green ripple">Add Listing</button>
       </div>
 
       <div class="my-listings">

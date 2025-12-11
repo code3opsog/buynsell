@@ -1,157 +1,110 @@
-// Mock users and data
-let currentUser = null;
-let shops = JSON.parse(localStorage.getItem('shops')) || [
-    { id: 1, name: 'User1 Shop', items: [
-        { id: 1, name: 'Cool Sword', price: 100, image: 'https://via.placeholder.com/250x150?text=Sword' }
-    ] },
-    { id: 2, name: 'User2 Shop', items: [
-        { id: 2, name: 'Magic Hat', price: 50, image: 'https://via.placeholder.com/250x150?text=Hat' }
-    ] }
+// Mock data (replace with Firebase later)
+let shops = JSON.parse(localStorage.getItem('rbxstock_shops')) || [
+  { id:1, name:"ProSeller", avatar:"https://i.imgur.com/7g5e1Qw.png", stock:125000 },
+  { id:2, name:"FastTrade", avatar:"https://i.imgur.com/3j5e1Qw.png", stock:89000 },
+  { id:3, name:"CheapRbx", avatar:"https://i.imgur.com/9k5e1Qw.png", stock:450000 },
+  { id:4, name:"EliteStock", avatar:"https://i.imgur.com/1m5e1Qw.png", stock:320000 },
+  { id:5, name:"QuickSell", avatar:"https://i.imgur.com/5p5e1Qw.png", stock:167000 },
+  { id:6, name:"TrustTrade", avatar:"https://i.imgur.com/6t5e1Qw.png", stock:298000 },
 ];
 
-// Login simulation
-document.getElementById('googleLogin').addEventListener('click', () => {
-    // In real: firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider());
-    currentUser = { id: 1, name: 'Google User' };
-    updateUI();
-});
+let currentUser = null;
 
-document.getElementById('discordLogin').addEventListener('click', () => {
-    // In real: Implement Discord OAuth
-    currentUser = { id: 2, name: 'Discord User' };
-    updateUI();
-});
-
-// Add current user's shop if not exists
-function ensureUserShop() {
-    if (!currentUser) return;
-    if (!shops.find(s => s.id === currentUser.id)) {
-        shops.push({ id: currentUser.id, name: `${currentUser.name}'s Shop`, items: [] });
-        saveData();
-    }
-}
-
-// Update UI based on login state
-function updateUI() {
-    if (currentUser) {
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('nav').style.display = 'flex';
-        document.getElementById('dashboardLink').style.display = 'inline';
-        document.getElementById('logoutLink').style.display = 'inline';
-        document.getElementById('home').style.display = 'none';
-        document.getElementById('dashboard').style.display = 'block';
-        ensureUserShop();
-        renderShops();
-        renderMyItems();
-    } else {
-        document.getElementById('authSection').style.display = 'block';
-        document.getElementById('nav').style.display = 'none';
-        document.getElementById('home').style.display = 'block';
-        document.getElementById('dashboard').style.display = 'none';
-        renderHomeShops();
-    }
-}
-
-// Render home shops
-function renderHomeShops() {
-    const grid = document.getElementById('shopsGrid');
-    grid.innerHTML = shops.map(shop => `
-        <div class="shop-card">
-            <h4>${shop.name}</h4>
-            <p>${shop.items.length} items</p>
-            <button onclick="viewShop(${shop.id})">View Shop</button>
-        </div>
-    `).join('');
-}
-
-// Render all shops in dashboard
+// Render shops
 function renderShops() {
-    const grid = document.getElementById('allShopsGrid');
-    grid.innerHTML = shops.filter(s => s.id !== currentUser.id).map(shop => `
-        <div class="shop-card">
-            <h4>${shop.name}</h4>
-            <div class="grid">${shop.items.map(item => `
-                <div class="item-card">
-                    <img src="${item.image}" alt="${item.name}">
-                    <h4>${item.name}</h4>
-                    <p class="price">R$ ${item.price}</p>
-                    <button onclick="buyItem(${item.id})">Buy</button>
-                </div>
-            `).join('')}</div>
-        </div>
-    `).join('');
+  const grid = document.getElementById('shopsGrid');
+  grid.innerHTML = shops.map(shop => `
+    <div class="shop-card">
+      <img src="${shop.avatar}" alt="${shop.name}">
+      <h3>${shop.name}</h3>
+      <div class="stock">${(shop.stock/1000).toFixed(0)}K Robux</div>
+      <button class="btn green" style="padding:10px 20px;margin-top:10px;">Visit Shop</button>
+    </div>
+  `).join('');
 }
 
-// Render my items
-function renderMyItems() {
-    const userShop = shops.find(s => s.id === currentUser.id);
-    const list = document.getElementById('myItemsList');
-    list.innerHTML = userShop.items.map(item => `
-        <li>${item.name} - R$ ${item.price} <button class="remove-btn" onclick="removeItem(${item.id})">Remove</button></li>
-    `).join('');
-}
+// Fake live counters
+setInterval(() => {
+  document.getElementById('usersOnline').textContent = Math.floor(Math.random()*200 + 800);
+}, 8000);
 
-// Add item
-document.getElementById('addItemForm').addEventListener('submit', (e) => {
-    e.preventDefault();
-    const userShop = shops.find(s => s.id === currentUser.id);
-    const newItem = {
-        id: Date.now(),
-        name: document.getElementById('itemName').value,
-        price: parseInt(document.getElementById('itemPrice').value),
-        image: document.getElementById('itemImage').value
+renderShops();
+
+// ======== AUTH (Google + Discord ready) ========
+// Uncomment and add your Firebase config for real login
+/*
+const firebaseConfig = { YOUR_CONFIG_HERE };
+firebase.initializeApp(firebaseConfig);
+
+document.querySelector('.google').addEventListener('click', () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider);
+});
+
+document.querySelector('.discord').addEventListener('click', () => {
+  const provider = new firebase.auth.OAuthProvider('oidc.discord');
+  firebase.auth().signInWithPopup(provider);
+});
+*/
+
+// Demo login (click either button to login as demo user)
+document.querySelectorAll('.login-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    currentUser = {
+      name: "DemoUser123",
+      avatar: "https://i.imgur.com/4k5e1Qw.png",
+      myListings: JSON.parse(localStorage.getItem('myListings') || '[]')
     };
-    userShop.items.push(newItem);
-    saveData();
-    renderMyItems();
-    renderShops();
-    e.target.reset();
+
+    document.getElementById('authButtons').style.display = 'none';
+    document.getElementById('userMenu').style.display = 'flex';
+    document.getElementById('userName').textContent = currentUser.name;
+    document.getElementById('userAvatar').src = currentUser.avatar;
+    document.getElementById('dashboard').style.display = 'block';
+
+    renderMyListings();
+  });
 });
 
-// Remove item
-function removeItem(itemId) {
-    const userShop = shops.find(s => s.id === currentUser.id);
-    userShop.items = userShop.items.filter(i => i.id !== itemId);
-    saveData();
-    renderMyItems();
-    renderShops();
-}
-
-// Mock buy
-function buyItem(itemId) {
-    alert('Item purchased! (Mock - implement payment in backend)');
-}
-
-// Mock view shop (expands in dashboard)
-function viewShop(shopId) {
-    alert(`Viewing shop ${shopId} (Integrated in dashboard)`);
-}
-
-// Logout
-document.getElementById('logoutLink').addEventListener('click', () => {
-    currentUser = null;
-    localStorage.removeItem('shops'); // Optional: clear data
-    updateUI();
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  currentUser = null;
+  document.getElementById('authButtons').style.display = 'block';
+  document.getElementById('userMenu').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'none';
 });
 
-// Nav links
-document.getElementById('homeLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    if (currentUser) {
-        currentUser = null;
-        updateUI();
-    }
+// Add listing
+document.getElementById('addListingBtn').addEventListener('click', () => {
+  const amount = parseInt(document.getElementById('amount').value);
+  const price = parseFloat(document.getElementById('price').value);
+
+  if (amount && price) {
+    const listing = { id:Date.now(), amount, price, usdPerK: (price/(amount/1000)).toFixed(2) };
+    currentUser.myListings.push(listing);
+    localStorage.setItem('myListings', JSON.stringify(currentUser.myListings));
+    renderMyListings();
+    document.getElementById('amount').value = '';
+    document.getElementById('price').value = '';
+  }
 });
 
-document.getElementById('dashboardLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    updateUI(); // Already shows dashboard
-});
+function renderMyListings() {
+  const container = document.getElementById('myListings');
+  if (!currentUser || currentUser.myListings.length === 0) {
+    container.innerHTML = '<p>No active listings</p>';
+    return;
+  }
 
-// Save/Load data
-function saveData() {
-    localStorage.setItem('shops', JSON.stringify(shops));
+  container.innerHTML = currentUser.myListings.map(l => `
+    <div>
+      <span>${(l.amount/1000).toFixed(0)}K Robux → $${l.price} ($${l.usdPerK}/K)</span>
+      <button class="remove-btn" onclick="removeListing(${l.id})">Remove</button>
+    </div>
+  `).join('');
 }
 
-// Init
-updateUI();
+function removeListing(id) {
+  currentUser.myListings = currentUser.myListings.filter(x => x.id !== id);
+  localStorage.setItem('myListings', JSON.stringify(currentUser.myListings));
+  renderMyListings();
+}
